@@ -3798,6 +3798,27 @@ void MagixGUI::processSelectBoxClick()
 			mNetworkManager->sendBioRequest(tTarget->getUser());
 		}
 	}
+	// === КРАФТ СИСТЕМА === //
+	// Обработка кнопки "Use" для крафт-станции
+	if (tFunction == "Use")
+	{
+		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
+		if (craftCritter && craftCritter->getIsCraftingStation())
+		{
+			showCraftGUI();  // Открываем интерфейс крафта
+			showSelectPanel(false);
+			return;
+		}
+	}
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+
+	else if (tFunction == "Praise")
+	{
+		MagixCritter *tCritter = mCritterManager->getByObjectNode(mCurrentObject);
+		if (!tCritter)return;
+		if (!tCritter->setAnimation("Praise"))tCritter->setAnimation("Attack1");
+		if (tCritter->isInvulnerable())mUnitManager->rewardCritter(tCritter);
+	}
 	else if (tFunction == "Praise")
 	{
 		MagixCritter *tCritter = mCritterManager->getByObjectNode(mCurrentObject);
@@ -3853,6 +3874,8 @@ void MagixGUI::processSelectBoxClick()
 		mUnitManager->getPlayer()->getPetFlags()->evolve = false;
 		mNetworkManager->sendCritterShrink(tCritter->getID(), false);
 	}
+
+
 	else if (tFunction == "Attack")
 	{
 		if (mUnitManager->getPlayer()->getIsWounded())
@@ -3892,6 +3915,20 @@ void MagixGUI::processSelectBoxClick()
 		mUnitManager->getPlayer()->setAutoAttack(0);
 		mUnitManager->getPlayer()->setTarget(tCritter->getPosition(), TARGET_RUNTOPICKUP, true);
 	}
+
+	// === КРАФТ СИСТЕМА === //
+	// Обработка кнопки "Use" для крафт-станции
+	else if (tFunction == "Use")
+	{
+		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
+		if (craftCritter && craftCritter->getIsCraftingStation())
+		{
+			showCraftGUI();  // Открываем интерфейс крафта
+			showSelectPanel(false);  // ← ИСПРАВЬ НА showSelectPanel(false)
+			return;
+		}
+	}
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 
 }
 void MagixGUI::showSelectPanel(bool flag, const String &name)
@@ -4052,6 +4089,20 @@ void MagixGUI::doRayPicking(bool isRightClick)
 			return;
 		}
 	}
+
+	// === КРАФТ СИСТЕМА === //
+	// Проверяем крафт-станцию (после цикла, если ничего не выбрано)
+	if (mCurrentObject && !isRightClick)
+	{
+		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
+		if (craftCritter && craftCritter->getIsCraftingStation())
+		{
+			showSelectPanel(true, "Use");  // Показываем "Use" для крафт-станции
+			return;
+		}
+	}
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+
 	//Clicked on nothing
 	if (!isRightClick)
 	{
