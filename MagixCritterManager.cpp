@@ -275,8 +275,28 @@ MagixCritter* MagixCritterManager::createCritter(const unsigned short &iID, cons
 	tC->setInvulnerable(critter.invulnerable);
 	tC->setHasAttack(critter.attackList.size()>0);
 	tC->setIsDrawPoint(critter.isDrawPoint);
+
+	// === ÊÐÀÔÒ ÑÈÑÒÅÌÀ === //
+	tC->setIsCraftingStation(critter.isCraftingStation);  // Óñòàíàâëèâàåì ôëàã êðàôòà
+	// === ÊÎÍÅÖ ÊÐÀÔÒ ÑÈÑÒÅÌÛ === //
+
 	if (critter.isDrawPoint)mEffectsManager->createParticle(tC->getObjectNode(), "DrawPoint", -1);
 	if (critter.material != "")tC->getEnt()->setMaterialName(critter.material);
+
+	// === ÊÐÀÔÒ ÑÈÑÒÅÌÀ === //
+	// Åñëè ýòî êðàôò-ñòàíöèÿ - ìåíÿåì ìåø íà Egg.mesh
+	if (tC->getIsCraftingStation())
+	{
+		mSceneMgr->destroyEntity(tC->getEnt());
+		Entity* newEnt = mSceneMgr->createEntity("Critter" + StringConverter::toString(tC->getID()), "Egg.mesh");
+		tC->getObjectNode()->attachObject(newEnt);
+		tC->getObjectNode()->setScale(2, 2, 2);  // Óâåëè÷èâàåì ðàçìåð
+
+		// Äîáàâëÿåì â ñïèñîê ñòàíöèé êðàôòà â World
+		if (mWorld) mWorld->addCraftingStation(tC->getObjectNode());
+	}
+	// === ÊÎÍÅÖ ÊÐÀÔÒ ÑÈÑÒÅÌÛ === //
+
 	critterList.push_back(tC);
 	if (tC->imTheOwner())myCritters.push_back(tC);
 	critterCount++;
@@ -523,3 +543,4 @@ const String MagixCritterManager::popWeatherEffectRequest()
 	weatherEffectRequest = "";
 	return tEffect;
 }
+

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "GameConfig.h"
 #include "MagixExternalDefinitions.h"
@@ -14,6 +14,8 @@
 #include "MagixSoundManager.h"
 #include "MagixMiniMap.h"
 #include "MagixConst.h"
+#include <vector>  // Добавлено для системы крафта
+#include "OgreTextAreaOverlayElement.h"  
 
 #define SIZEDIR_TOP 1
 #define SIZEDIR_BOTTOM 2
@@ -225,6 +227,7 @@ protected:
 	OverlayElement *mSelectPanel;
 	OverlayElement *mListSelectHighlight;
 
+
 	OverlayElement *mBox[MAX_BOXES];
 	OverlayElement *mBoxText[MAX_BOXES];
 	OverlayElement *mButton[MAX_BUTTONS];
@@ -310,6 +313,14 @@ protected:
 
 	vector<String>::type campaignList;
 	unsigned short campaignPage;
+
+	// === КРАФТ СИСТЕМА === //
+	Overlay* craftOverlay;
+	OverlayContainer* craftPanel;
+	TextAreaOverlayElement* craftText;
+	bool isCraftGUIVisible;
+	std::vector<String> craftItems;  // Предметы в котле для крафта
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 
 public:
 	void pickUpNearestItem();
@@ -488,4 +499,13 @@ public:
 	void toggleCheckBox(OverlayElement *checkBox);
 	bool isCheckBoxTrue(OverlayElement *checkBox);
 	void party(MagixUnit *unit);
+
+	// === КРАФТ СИСТЕМА === //
+	void initializeCraftGUI();  // Инициализация GUI крафта
+	void showCraftGUI();        // Показать GUI крафта
+	void hideCraftGUI();        // Скрыть GUI крафта
+	void updateCraftText();     // Обновить текст крафта
+	void addItemToCraft(const String& itemName);  // Добавить предмет в котел
+	void clearCraftItems();     // Очистить котел
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 };

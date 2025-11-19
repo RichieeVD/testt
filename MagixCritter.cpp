@@ -394,3 +394,13 @@ bool MagixCritter::getIsDrawPoint()
 {
 	return isDrawPoint;
 }
+
+void MagixCritter::setIsCraftingStation(bool flag)
+{
+	isCraftingStation = flag;
+}
+
+bool MagixCritter::getIsCraftingStation()
+{
+	return isCraftingStation;
+}

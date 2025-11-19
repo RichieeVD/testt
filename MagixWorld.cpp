@@ -1,4 +1,4 @@
-#include "MagixWorld.h"
+Ôªø#include "MagixWorld.h"
 #include "HeightFunction.h"
 #include "MagixConst.h"
 
@@ -14,6 +14,10 @@ MagixWorld::MagixWorld()
 	mReflectNode = 0;
 	mRayQuery = 0;
 	RefPosition = Vector3::ZERO;
+	// === –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–ê === //
+	// –ò–Ω–∏—Ü–∏–∞–ª–∏–∑–∞—Ü–∏—è —Ä–µ—Ü–µ–ø—Ç–æ–≤ –∫—Ä–∞—Ñ—Ç–∞
+	initializeCraftRecipes();
+	// === –ö–û–ù–ï–¶ –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–´ === //
 
 	mDef = 0;
 	mGameStateManager = 0;
@@ -76,7 +80,7 @@ void MagixWorld::initialize(SceneManager *sceneMgr, RenderWindow *window, MagixE
 	mSkyManager = skyMgr;
 	mMainCamera = mainCam;
 
-	// —Œ«ƒ¿≈Ã Œ“ƒ≈À‹Õ”ﬁ  ¿Ã≈–” ƒÀﬂ Œ“–¿∆≈Õ»…
+	// –°–û–ó–î–ê–ï–ú –û–¢–î–ï–õ–¨–ù–£–Æ –ö–ê–ú–ï–†–£ –î–õ–Ø –û–¢–†–ê–ñ–ï–ù–ò–ô
 	if (!mSceneMgr->hasCamera("ReflectCamera"))
 	{
 		mReflectCamera = mSceneMgr->createCamera("ReflectCamera");
@@ -90,7 +94,7 @@ void MagixWorld::initialize(SceneManager *sceneMgr, RenderWindow *window, MagixE
 		mReflectCamera = mSceneMgr->getCamera("ReflectCamera");
 	}
 
-	// —ÓÁ‰‡ÂÏ ray query ‰Îˇ ÓÔÂ‰ÂÎÂÌËˇ ÔÓÁËˆËË ‚Ó‰˚
+	// –°–æ–∑–¥–∞–µ–º ray query –¥–ª—è –æ–ø—Ä–µ–¥–µ–ª–µ–Ω–∏—è –ø–æ–∑–∏—Ü–∏–∏ –≤–æ–¥—ã
 	mRayQuery = sceneMgr->createRayQuery(Ray());
 
 	initializeCustomMeshes();
@@ -137,44 +141,44 @@ void MagixWorld::removeReflectionViewport()
 		mReflectRtt->removeAllViewports();
 }
 
-// ÕŒ¬¿ﬂ ‘”Õ ÷»ﬂ - Œ¡ÕŒ¬À≈Õ»≈  ¿Ã≈–€ Œ“–¿∆≈Õ»ﬂ
+// –ù–û–í–ê–Ø –§–£–ù–ö–¶–ò–Ø - –û–ë–ù–û–í–õ–ï–ù–ò–ï –ö–ê–ú–ï–†–´ –û–¢–†–ê–ñ–ï–ù–ò–Ø
 void MagixWorld::updateReflectionCamera()
 {
 	if (!mReflectCamera || !mReflectPlane || !mMainCamera || !mMainCamera->getCamera()) return;
 
-	// œÓÎÛ˜‡ÂÏ ÔÓÁËˆË˛ Ë ÓËÂÌÚ‡ˆË˛ ÓÒÌÓ‚ÌÓÈ Í‡ÏÂ˚
+	// –ü–æ–ª—É—á–∞–µ–º –ø–æ–∑–∏—Ü–∏—é –∏ –æ—Ä–∏–µ–Ω—Ç–∞—Ü–∏—é –æ—Å–Ω–æ–≤–Ω–æ–π –∫–∞–º–µ—Ä—ã
 	Camera* mainCam = mMainCamera->getCamera();
 	Vector3 mainCamPos = mainCam->getPosition();
 	Quaternion mainCamOrientation = mainCam->getOrientation();
 
-	// »—œ–¿¬À≈Õ»≈: ¡ÓÎÂÂ ÚÓ˜ÌÓÂ ÓÚ‡ÊÂÌËÂ ÔÓÁËˆËË ÓÚÌÓÒËÚÂÎ¸ÌÓ ÔÎÓÒÍÓÒÚË ‚Ó‰˚
+	// –ò–°–ü–†–ê–í–õ–ï–ù–ò–ï: –ë–æ–ª–µ–µ —Ç–æ—á–Ω–æ–µ –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –ø–æ–∑–∏—Ü–∏–∏ –æ—Ç–Ω–æ—Å–∏—Ç–µ–ª—å–Ω–æ –ø–ª–æ—Å–∫–æ—Å—Ç–∏ –≤–æ–¥—ã
 	float waterY = RefPosition.y;
 	Vector3 reflectPos = mainCamPos;
 
-	// –‡ÒÒ˜ËÚ˚‚‡ÂÏ ‡ÒÒÚÓˇÌËÂ ÓÚ Í‡ÏÂ˚ ‰Ó ‚Ó‰ÌÓÈ ÔÓ‚ÂıÌÓÒÚË
+	// –†–∞—Å—Å—á–∏—Ç—ã–≤–∞–µ–º —Ä–∞—Å—Å—Ç–æ—è–Ω–∏–µ –æ—Ç –∫–∞–º–µ—Ä—ã –¥–æ –≤–æ–¥–Ω–æ–π –ø–æ–≤–µ—Ä—Ö–Ω–æ—Å—Ç–∏
 	float distanceToWater = mainCamPos.y - waterY;
 
-	// ŒÚ‡Ê‡ÂÏ ÔÓÁËˆË˛: ÂÒÎË Í‡ÏÂ‡ ‚˚¯Â ‚Ó‰˚, ÓÚ‡ÊÂÌËÂ ‰ÓÎÊÌÓ ·˚Ú¸ ÌËÊÂ ‚Ó‰˚ Ì‡ ÚÓÏ ÊÂ ‡ÒÒÚÓˇÌËË
+	// –û—Ç—Ä–∞–∂–∞–µ–º –ø–æ–∑–∏—Ü–∏—é: –µ—Å–ª–∏ –∫–∞–º–µ—Ä–∞ –≤—ã—à–µ –≤–æ–¥—ã, –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –¥–æ–ª–∂–Ω–æ –±—ã—Ç—å –Ω–∏–∂–µ –≤–æ–¥—ã –Ω–∞ —Ç–æ–º –∂–µ —Ä–∞—Å—Å—Ç–æ—è–Ω–∏–∏
 	if (mMainCamera->getIsUnderwater())
 	{
-		// ≈ÒÎË ÔÓ‰ ‚Ó‰ÓÈ - ÓÚ‡ÊÂÌËÂ Ì‡‰ ‚Ó‰ÓÈ
+		// –ï—Å–ª–∏ –ø–æ–¥ –≤–æ–¥–æ–π - –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –Ω–∞–¥ –≤–æ–¥–æ–π
 		reflectPos.y = waterY + abs(distanceToWater);
 	}
 	else
 	{
-		// ≈ÒÎË Ì‡‰ ‚Ó‰ÓÈ - ÓÚ‡ÊÂÌËÂ ÔÓ‰ ‚Ó‰ÓÈ
+		// –ï—Å–ª–∏ –Ω–∞–¥ –≤–æ–¥–æ–π - –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –ø–æ–¥ –≤–æ–¥–æ–π
 		reflectPos.y = waterY - abs(distanceToWater);
 	}
 
-	// ŒÚ‡Ê‡ÂÏ ÓËÂÌÚ‡ˆË˛ Í‡ÏÂ˚ (ÁÂÍ‡Î¸ÌÓ ÔÓ Y)
+	// –û—Ç—Ä–∞–∂–∞–µ–º –æ—Ä–∏–µ–Ω—Ç–∞—Ü–∏—é –∫–∞–º–µ—Ä—ã (–∑–µ—Ä–∫–∞–ª—å–Ω–æ –ø–æ Y)
 	Vector3 forward = mainCamOrientation * Vector3::NEGATIVE_UNIT_Z;
 	Vector3 up = mainCamOrientation * Vector3::UNIT_Y;
 
-	// ŒÚ‡Ê‡ÂÏ ‚ÂÍÚÓ˚
+	// –û—Ç—Ä–∞–∂–∞–µ–º –≤–µ–∫—Ç–æ—Ä—ã
 	forward.y = -forward.y;
 	up.y = -up.y;
 
-	// —ÓÁ‰‡ÂÏ ÌÓ‚Û˛ ÓËÂÌÚ‡ˆË˛ ËÁ ÓÚ‡ÊÂÌÌ˚ı ‚ÂÍÚÓÓ‚
+	// –°–æ–∑–¥–∞–µ–º –Ω–æ–≤—É—é –æ—Ä–∏–µ–Ω—Ç–∞—Ü–∏—é –∏–∑ –æ—Ç—Ä–∞–∂–µ–Ω–Ω—ã—Ö –≤–µ–∫—Ç–æ—Ä–æ–≤
 	Vector3 right = forward.crossProduct(up);
 	right.normalise();
 	up = right.crossProduct(forward);
@@ -183,16 +187,16 @@ void MagixWorld::updateReflectionCamera()
 	Matrix3 reflectMat;
 	reflectMat.SetColumn(0, right);
 	reflectMat.SetColumn(1, up);
-	reflectMat.SetColumn(2, -forward); // »Ì‚ÂÚËÛÂÏ forward ‰Îˇ Ô‡‚ËÎ¸ÌÓ„Ó ÓÚ‡ÊÂÌËˇ
+	reflectMat.SetColumn(2, -forward); // –ò–Ω–≤–µ—Ä—Ç–∏—Ä—É–µ–º forward –¥–ª—è –ø—Ä–∞–≤–∏–ª—å–Ω–æ–≥–æ –æ—Ç—Ä–∞–∂–µ–Ω–∏—è
 
 	Quaternion reflectOrientation;
 	reflectOrientation.FromRotationMatrix(reflectMat);
 
-	// ”ÒÚ‡Ì‡‚ÎË‚‡ÂÏ ÔÓÁËˆË˛ Ë ÓËÂÌÚ‡ˆË˛ Í‡ÏÂ˚ ÓÚ‡ÊÂÌËˇ
+	// –£—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ–º –ø–æ–∑–∏—Ü–∏—é –∏ –æ—Ä–∏–µ–Ω—Ç–∞—Ü–∏—é –∫–∞–º–µ—Ä—ã –æ—Ç—Ä–∞–∂–µ–Ω–∏—è
 	mReflectCamera->setPosition(reflectPos);
 	mReflectCamera->setOrientation(reflectOrientation);
 
-	//  ÓÔËÛÂÏ ÓÒÚ‡Î¸Ì˚Â Ô‡‡ÏÂÚ˚
+	// –ö–æ–ø–∏—Ä—É–µ–º –æ—Å—Ç–∞–ª—å–Ω—ã–µ –ø–∞—Ä–∞–º–µ—Ç—Ä—ã
 	mReflectCamera->setFOVy(mainCam->getFOVy());
 	mReflectCamera->setAspectRatio(mainCam->getAspectRatio());
 	mReflectCamera->setNearClipDistance(mainCam->getNearClipDistance());
@@ -211,20 +215,20 @@ void MagixWorld::updateUnderWater()
 
 		if (isUnderwater)
 		{
-			// œŒƒ ¬ŒƒŒ… - ÓÚÍÎ˛˜‡ÂÏ ÓÚ‡ÊÂÌËˇ Ë ËÒÔÓÎ¸ÁÛÂÏ ÔÓ‰‚Ó‰Ì˚È Ï‡ÚÂË‡Î
+			// –ü–û–î –í–û–î–û–ô - –æ—Ç–∫–ª—é—á–∞–µ–º –æ—Ç—Ä–∞–∂–µ–Ω–∏—è –∏ –∏—Å–ø–æ–ª—å–∑—É–µ–º –ø–æ–¥–≤–æ–¥–Ω—ã–π –º–∞—Ç–µ—Ä–∏–∞–ª
 			if (ent->getSubEntity(0)->getMaterialName() != WATER_UNDERWATERMAT)
 			{
-				// ŒÚÍÎ˛˜‡ÂÏ ÓÚ‡ÊÂÌËÂ ‰Îˇ Í‡ÏÂ˚
+				// –û—Ç–∫–ª—é—á–∞–µ–º –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –¥–ª—è –∫–∞–º–µ—Ä—ã
 				if (mReflectCamera)
 				{
 					mReflectCamera->disableReflection();
 					mReflectCamera->disableCustomNearClipPlane();
 				}
 
-				// œÂÂÍÎ˛˜‡ÂÏ Ï‡ÚÂË‡Î Ì‡ ÔÓ‰‚Ó‰Ì˚È
+				// –ü–µ—Ä–µ–∫–ª—é—á–∞–µ–º –º–∞—Ç–µ—Ä–∏–∞–ª –Ω–∞ –ø–æ–¥–≤–æ–¥–Ω—ã–π
 				ent->setMaterialName(WATER_UNDERWATERMAT);
 
-				// Œ·ÌÓ‚ÎˇÂÏ ‚¸˛ÔÓÚ ÓÚ‡ÊÂÌËˇ (ÚÓÎ¸ÍÓ ÂÒÎË RTT ÒÛ˘ÂÒÚ‚ÛÂÚ)
+				// –û–±–Ω–æ–≤–ª—è–µ–º –≤—å—é–ø–æ—Ä—Ç –æ—Ç—Ä–∞–∂–µ–Ω–∏—è (—Ç–æ–ª—å–∫–æ –µ—Å–ª–∏ RTT —Å—É—â–µ—Å—Ç–≤—É–µ—Ç)
 				if (mReflectRtt)
 				{
 					initReflectionViewport();
@@ -233,20 +237,20 @@ void MagixWorld::updateUnderWater()
 		}
 		else
 		{
-			// Õ¿ƒ ¬ŒƒŒ… - ‚ÍÎ˛˜‡ÂÏ ÓÚ‡ÊÂÌËˇ Ë ËÒÔÓÎ¸ÁÛÂÏ ÓÚ‡Ê‡˛˘ËÈ Ï‡ÚÂË‡Î
+			// –ù–ê–î –í–û–î–û–ô - –≤–∫–ª—é—á–∞–µ–º –æ—Ç—Ä–∞–∂–µ–Ω–∏—è –∏ –∏—Å–ø–æ–ª—å–∑—É–µ–º –æ—Ç—Ä–∞–∂–∞—é—â–∏–π –º–∞—Ç–µ—Ä–∏–∞–ª
 			if (ent->getSubEntity(0)->getMaterialName() != WATER_REFLECTMAT)
 			{
-				// ¬ÍÎ˛˜‡ÂÏ ÓÚ‡ÊÂÌËÂ ‰Îˇ Í‡ÏÂ˚
+				// –í–∫–ª—é—á–∞–µ–º –æ—Ç—Ä–∞–∂–µ–Ω–∏–µ –¥–ª—è –∫–∞–º–µ—Ä—ã
 				if (mReflectCamera && mReflectPlane)
 				{
 					mReflectCamera->enableReflection(*mReflectPlane);
 					mReflectCamera->enableCustomNearClipPlane(*mReflectPlane);
 				}
 
-				// œÂÂÍÎ˛˜‡ÂÏ Ï‡ÚÂË‡Î Ì‡ ÓÚ‡Ê‡˛˘ËÈ
+				// –ü–µ—Ä–µ–∫–ª—é—á–∞–µ–º –º–∞—Ç–µ—Ä–∏–∞–ª –Ω–∞ –æ—Ç—Ä–∞–∂–∞—é—â–∏–π
 				ent->setMaterialName(WATER_REFLECTMAT);
 
-				// Œ·ÌÓ‚ÎˇÂÏ ‚¸˛ÔÓÚ ÓÚ‡ÊÂÌËˇ (ÚÓÎ¸ÍÓ ÂÒÎË RTT ÒÛ˘ÂÒÚ‚ÛÂÚ)
+				// –û–±–Ω–æ–≤–ª—è–µ–º –≤—å—é–ø–æ—Ä—Ç –æ—Ç—Ä–∞–∂–µ–Ω–∏—è (—Ç–æ–ª—å–∫–æ –µ—Å–ª–∏ RTT —Å—É—â–µ—Å—Ç–≤—É–µ—Ç)
 				if (mReflectRtt)
 				{
 					initReflectionViewport();
@@ -259,7 +263,7 @@ void MagixWorld::updateCameraReflector()
 {
 	if (!mReflectNode || !mRayQuery || numWaterPlanes == 0) return;
 
-	// ¡ÓÒ‡ÂÏ ÎÛ˜ ÓÚ Í‡ÏÂ˚ ‚ÌËÁ ‰Îˇ ÓÔÂ‰ÂÎÂÌËˇ ·ÎËÊ‡È¯ÂÈ ‚Ó‰ÌÓÈ ÔÓ‚ÂıÌÓÒÚË
+	// –ë—Ä–æ—Å–∞–µ–º –ª—É—á –æ—Ç –∫–∞–º–µ—Ä—ã –≤–Ω–∏–∑ –¥–ª—è –æ–ø—Ä–µ–¥–µ–ª–µ–Ω–∏—è –±–ª–∏–∂–∞–π—à–µ–π –≤–æ–¥–Ω–æ–π –ø–æ–≤–µ—Ä—Ö–Ω–æ—Å—Ç–∏
 	const Vector3 camPos = mMainCamera->getCamera()->getPosition();
 	Ray mouseRay(camPos, Vector3::NEGATIVE_UNIT_Y);
 	mRayQuery->setRay(mouseRay);
@@ -275,7 +279,7 @@ void MagixWorld::updateCameraReflector()
 		{
 			if (i->movable->getParentSceneNode())
 			{
-				// Œ·ÌÓ‚ÎˇÂÏ ÔÓÁËˆË˛ ÔÎÓÒÍÓÒÚË ÓÚ‡ÊÂÌËˇ
+				// –û–±–Ω–æ–≤–ª—è–µ–º –ø–æ–∑–∏—Ü–∏—é –ø–ª–æ—Å–∫–æ—Å—Ç–∏ –æ—Ç—Ä–∞–∂–µ–Ω–∏—è
 				Vector3 waterPos = i->movable->getParentSceneNode()->getPosition();
 				RefPosition = Vector3(0.0f, waterPos.y, 0.0f);
 				mReflectNode->setPosition(RefPosition);
@@ -285,7 +289,7 @@ void MagixWorld::updateCameraReflector()
 		}
 	}
 
-	// ≈ÒÎË ÌÂ Ì‡¯ÎË ‚Ó‰Û ÔÓ‰ Í‡ÏÂÓÈ, ËÒÔÓÎ¸ÁÛÂÏ ÔÂ‚Û˛ ‚Ó‰ÌÛ˛ ÔÎÓÒÍÓÒÚ¸
+	// –ï—Å–ª–∏ –Ω–µ –Ω–∞—à–ª–∏ –≤–æ–¥—É –ø–æ–¥ –∫–∞–º–µ—Ä–æ–π, –∏—Å–ø–æ–ª—å–∑—É–µ–º –ø–µ—Ä–≤—É—é –≤–æ–¥–Ω—É—é –ø–ª–æ—Å–∫–æ—Å—Ç—å
 	if (!waterFound && numWaterPlanes > 0)
 	{
 		Entity* firstWater = mSceneMgr->getEntity("WorldWaterPlane1");
@@ -305,11 +309,11 @@ void MagixWorld::initializeCustomMeshes()
 	MeshManager::getSingleton().createPlane("WaterPlaneMesh",
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		waterPlane,
-		500, 500,    // ‡ÁÏÂ ÔÎÓÒÍÓÒÚË
-		1, 1,        // ÒÂ„ÏÂÌÚ˚
-		true,        // ÌÓÏ‡ÎËÁÓ‚‡ÌÌ˚Â UV
+		500, 500,    // —Ä–∞–∑–º–µ—Ä –ø–ª–æ—Å–∫–æ—Å—Ç–∏
+		1, 1,        // —Å–µ–≥–º–µ–Ω—Ç—ã
+		true,        // –Ω–æ—Ä–º–∞–ª–∏–∑–æ–≤–∞–Ω–Ω—ã–µ UV
 		1,
-		1, 1,        // »—œ–¿¬À≈ÕŒ: UV Ï‡Ò¯Ú‡· 1x1 (·˚ÎÓ 2,2)
+		1, 1,        // –ò–°–ü–†–ê–í–õ–ï–ù–û: UV –º–∞—Å—à—Ç–∞–± 1x1 (–±—ã–ª–æ 2,2)
 		Vector3::UNIT_Z);
 }
 
@@ -331,12 +335,12 @@ void MagixWorld::update()
 	updateUnderWater();
 	updateCameraReflector();
 
-	// ¬¿∆ÕŒ: Œ·ÌÓ‚ÎˇÂÏ Í‡ÏÂÛ ÓÚ‡ÊÂÌËˇ ‚ÒÂ„‰‡, ÍÓ„‰‡ ÂÒÚ¸ ‚Ó‰Ì˚Â ÔÓ‚ÂıÌÓÒÚË
+	// –í–ê–ñ–ù–û: –û–±–Ω–æ–≤–ª—è–µ–º –∫–∞–º–µ—Ä—É –æ—Ç—Ä–∞–∂–µ–Ω–∏—è –≤—Å–µ–≥–¥–∞, –∫–æ–≥–¥–∞ –µ—Å—Ç—å –≤–æ–¥–Ω—ã–µ –ø–æ–≤–µ—Ä—Ö–Ω–æ—Å—Ç–∏
 	if (numWaterPlanes > 0)
 	{
 		updateReflectionCamera();
 
-		// œËÌÛ‰ËÚÂÎ¸ÌÓ Ó·ÌÓ‚ÎˇÂÏ RTT ÚÂÍÒÚÛÛ
+		// –ü—Ä–∏–Ω—É–¥–∏—Ç–µ–ª—å–Ω–æ –æ–±–Ω–æ–≤–ª—è–µ–º RTT —Ç–µ–∫—Å—Ç—É—Ä—É
 		if (mReflectRtt && mReflectRtt->isActive())
 		{
 			mReflectRtt->update();
@@ -494,7 +498,20 @@ void MagixWorld::loadWorld(const String &name)
 					if (tLine.size()>5)tSound = tLine[5];
 					String tMatName = "";
 					if (tLine.size()>6)tMatName = tLine[6];
+
+					// –°–û–ó–î–ê–ï–ú –û–ë–™–ï–ö–¢
 					addObject(tLine[1], tPosition, tScale, tRotation.x, tRotation.y, tRotation.z, tSound, tMatName);
+
+					// === –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–ê === //
+					// –ü–†–û–í–ï–†–Ø–ï–ú –¢–ï–ì –î–õ–Ø –°–¢–ê–ù–¶–ò–ò –ö–†–ê–§–¢–ê
+					if (tLine.size() > 7 && tLine[7] == "crafting_station")
+					{
+						// –ü–æ–ª—É—á–∞–µ–º –Ω–æ–¥—É –ø–æ—Å–ª–µ–¥–Ω–µ–≥–æ —Å–æ–∑–¥–∞–Ω–Ω–æ–≥–æ –æ–±—ä–µ–∫—Ç–∞
+						SceneNode* node = mSceneMgr->getEntity("WorldObject" + StringConverter::toString(numObjects))->getParentSceneNode();
+						// –î–æ–±–∞–≤–ª—è–µ–º –≤ —Å–ø–∏—Å–æ–∫ —Å—Ç–∞–Ω—Ü–∏–π –∫—Ä–∞—Ñ—Ç–∞
+						craftingStations.push_back(node);
+					}
+					// === –ö–û–ù–ï–¶ –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–´ === //
 				}
 				else if (StringUtil::startsWith(tLine[0], "Particle", false) && tLine.size() >= 3)
 				{
@@ -638,14 +655,25 @@ void MagixWorld::loadWorld(const String &name)
 	}
 
 	//Load critter spawn list
+	//Load critter spawn list
 	if (!mDef->loadCritterSpawnList(worldName, critterSpawnLimit, critterSpawnList, critterRoamAreaList, tCritterSpawnFilename))
 	{
 		//Non-crittered map Draw Points
 		critterSpawnList.clear();
 		const Real tSize = (Real)((worldSize.x + worldSize.y)*0.5);
+
+		// Draw Point –æ—Å—Ç–∞–µ—Ç—Å—è –∫–∞–∫ –±—ã–ª
 		critterSpawnList.push_back(WorldCritter("Draw Point", (Real)(0.0001*tSize*0.0001)));
-		if (tSize <= 5000)critterSpawnLimit = 1;
-		else if (tSize <= 8000)critterSpawnLimit = 2;
+
+		// === –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–ê === //
+		// –î–û–ë–ê–í–õ–Ø–ï–ú –∫—Ä–∞—Ñ—Ç-—Å—Ç–∞–Ω—Ü–∏—é –∫–∞–∫ –¥–æ–ø–æ–ª–Ω–∏—Ç–µ–ª—å–Ω—ã–π –∫—Ä–∏—Ç—Ç–µ—Ä
+		WorldCritter craftStation("Crafting Station", (Real)(0.0001*tSize*0.0001));
+		craftStation.isCraftingStation = true;  // ‚Üê –£—Å—Ç–∞–Ω–æ–≤–∏—Ç—å —Ñ–ª–∞–≥
+		critterSpawnList.push_back(craftStation);
+		// === –ö–û–ù–ï–¶ –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–´ === //
+
+		if (tSize <= 5000)critterSpawnLimit = 2;  // –£–≤–µ–ª–∏—á–∏–≤–∞–µ–º –ª–∏–º–∏—Ç –¥–æ 2
+		else if (tSize <= 8000)critterSpawnLimit = 3;  // –£–≤–µ–ª–∏—á–∏–≤–∞–µ–º –ª–∏–º–∏—Ç –¥–æ 3
 	}
 
 	//if(!mDef->hasVertexProgram)return;
@@ -1199,27 +1227,27 @@ void MagixWorld::addWaterPlane(const Vector3 &position, const Real &scaleX, cons
 
 	Entity* waterPlaneEnt = mSceneMgr->createEntity("WorldWaterPlane" + StringConverter::toString(numWaterPlanes), "WaterPlaneMesh");
 
-	// —ÓÁ‰‡ÂÏ ÒËÒÚÂÏÛ ÓÚ‡ÊÂÌËÈ ÚÓÎ¸ÍÓ ‰Îˇ ÔÂ‚ÓÈ ‚Ó‰ÌÓÈ ÔÓ‚ÂıÌÓÒÚË
+	// –°–æ–∑–¥–∞–µ–º —Å–∏—Å—Ç–µ–º—É –æ—Ç—Ä–∞–∂–µ–Ω–∏–π —Ç–æ–ª—å–∫–æ –¥–ª—è –ø–µ—Ä–≤–æ–π –≤–æ–¥–Ω–æ–π –ø–æ–≤–µ—Ä—Ö–Ω–æ—Å—Ç–∏
 	if (numWaterPlanes == 1)
 	{
-		// —ÓÁ‰‡ÂÏ ÔÓ‰‚ËÊÌÛ˛ ÔÎÓÒÍÓÒÚ¸ ‰Îˇ ÓÚ‡ÊÂÌËÈ
+		// –°–æ–∑–¥–∞–µ–º –ø–æ–¥–≤–∏–∂–Ω—É—é –ø–ª–æ—Å–∫–æ—Å—Ç—å –¥–ª—è –æ—Ç—Ä–∞–∂–µ–Ω–∏–π
 		mReflectPlane = new MovablePlane("ReflectPlane");
 		mReflectPlane->d = 0;
 		mReflectPlane->normal = Vector3::UNIT_Y;
 
-		// —ÓÁ‰‡ÂÏ RTT ÚÂÍÒÚÛÛ ‰Îˇ ÓÚ‡ÊÂÌËÈ Ò ·ÓÎ¸¯ËÏ ‡ÒÒÚÓˇÌËÂÏ ÔÓËÒÓ‚ÍË
+		// –°–æ–∑–¥–∞–µ–º RTT —Ç–µ–∫—Å—Ç—É—Ä—É –¥–ª—è –æ—Ç—Ä–∞–∂–µ–Ω–∏–π —Å –±–æ–ª—å—à–∏–º —Ä–∞—Å—Å—Ç–æ—è–Ω–∏–µ–º –ø—Ä–æ—Ä–∏—Å–æ–≤–∫–∏
 		mReflectTex = TextureManager::getSingleton().createManual(
 			"RttTex",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			TEX_TYPE_2D,
-			1024, 1024,  // ÃÓÊÌÓ Û‚ÂÎË˜ËÚ¸ ‰Ó 2048 ‰Îˇ ÎÛ˜¯Â„Ó Í‡˜ÂÒÚ‚‡
+			1024, 1024,  // –ú–æ–∂–Ω–æ —É–≤–µ–ª–∏—á–∏—Ç—å –¥–æ 2048 –¥–ª—è –ª—É—á—à–µ–≥–æ –∫–∞—á–µ—Å—Ç–≤–∞
 			0,
 			PF_R8G8B8,
 			TU_RENDERTARGET);
 
 		mReflectRtt = mReflectTex->getBuffer()->getRenderTarget();
 
-		// Õ‡ÒÚ‡Ë‚‡ÂÏ RTT ‰Îˇ ‡·ÓÚ˚ Ì‡ ·ÓÎ¸¯Ëı ‡ÒÒÚÓˇÌËˇı
+		// –ù–∞—Å—Ç—Ä–∞–∏–≤–∞–µ–º RTT –¥–ª—è —Ä–∞–±–æ—Ç—ã –Ω–∞ –±–æ–ª—å—à–∏—Ö —Ä–∞—Å—Å—Ç–æ—è–Ω–∏—è—Ö
 		mReflectRtt->setAutoUpdated(true);
 		mReflectRtt->setActive(true);
 
@@ -1229,7 +1257,7 @@ void MagixWorld::addWaterPlane(const Vector3 &position, const Real &scaleX, cons
 		v->setOverlaysEnabled(false);
 		v->setShadowsEnabled(false);
 
-		// Õ‡ÒÚ‡Ë‚‡ÂÏ Ï‡ÚÂË‡Î ÓÚ‡ÊÂÌËˇ
+		// –ù–∞—Å—Ç—Ä–∞–∏–≤–∞–µ–º –º–∞—Ç–µ—Ä–∏–∞–ª –æ—Ç—Ä–∞–∂–µ–Ω–∏—è
 		MaterialPtr mat = MaterialManager::getSingleton().getByName(WATER_REFLECTMAT);
 		if (!mat.isNull())
 		{
@@ -1238,11 +1266,11 @@ void MagixWorld::addWaterPlane(const Vector3 &position, const Real &scaleX, cons
 			mReflectTexState->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 			mReflectTexState->setTextureScale(1, 1);
 
-			// ¬ÍÎ˛˜‡ÂÏ ÙËÎ¸Ú‡ˆË˛ ‰Îˇ ÎÛ˜¯Â„Ó Í‡˜ÂÒÚ‚‡
+			// –í–∫–ª—é—á–∞–µ–º —Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏—é –¥–ª—è –ª—É—á—à–µ–≥–æ –∫–∞—á–µ—Å—Ç–≤–∞
 			mReflectTexState->setTextureFiltering(TFO_BILINEAR);
 		}
 
-		// Õ‡ÒÚ‡Ë‚‡ÂÏ ÔÓ‰‚Ó‰Ì˚È Ï‡ÚÂË‡Î
+		// –ù–∞—Å—Ç—Ä–∞–∏–≤–∞–µ–º –ø–æ–¥–≤–æ–¥–Ω—ã–π –º–∞—Ç–µ—Ä–∏–∞–ª
 		MaterialPtr underwaterMat = MaterialManager::getSingleton().getByName(WATER_UNDERWATERMAT);
 		if (!underwaterMat.isNull())
 		{
@@ -1252,7 +1280,7 @@ void MagixWorld::addWaterPlane(const Vector3 &position, const Real &scaleX, cons
 			mUnderwaterTexState->setTextureFiltering(TFO_BILINEAR);
 		}
 
-		// —ÓÁ‰‡ÂÏ ÌÓ‰Û ‰Îˇ ÔÎÓÒÍÓÒÚË ÓÚ‡ÊÂÌËˇ
+		// –°–æ–∑–¥–∞–µ–º –Ω–æ–¥—É –¥–ª—è –ø–ª–æ—Å–∫–æ—Å—Ç–∏ –æ—Ç—Ä–∞–∂–µ–Ω–∏—è
 		mReflectNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		mReflectNode->attachObject(mReflectPlane);
 		mReflectNode->setPosition(position);
@@ -1506,3 +1534,97 @@ void MagixWorld::clearCritterSpawnList()
 {
 	critterSpawnList.clear();
 }
+
+// === –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–ê === //
+void MagixWorld::initializeCraftRecipes()
+{
+	// –†–µ—Ü–µ–ø—Ç: 3 —Ä–æ–∑—ã = Christmas Hat
+	CraftRecipe *recipe1 = new CraftRecipe();
+	recipe1->resultItem = "hat1.mesh";
+	recipe1->requiredItems.push_back("rose.mesh");
+	recipe1->requiredItems.push_back("rose.mesh");
+	recipe1->requiredItems.push_back("rose.mesh");
+	craftRecipes.push_back(recipe1);
+
+	// –ú–æ–∂–Ω–æ –¥–æ–±–∞–≤–∏—Ç—å –±–æ–ª—å—à–µ —Ä–µ—Ü–µ–ø—Ç–æ–≤ –∑–¥–µ—Å—å
+}
+
+bool MagixWorld::checkCraftRecipe(const std::vector<String>& items)
+{
+	return !getCraftResult(items).empty();
+}
+
+String MagixWorld::getCraftResult(const std::vector<String>& items)
+{
+	for (unsigned int i = 0; i < craftRecipes.size(); i++)
+	{
+		CraftRecipe *recipe = craftRecipes[i];
+		std::vector<String> tempRequired = recipe->requiredItems;
+		std::vector<String> tempItems = items;
+
+		// –ü—Ä–æ–≤–µ—Ä—è–µ–º —Å–æ–≤–ø–∞–¥–µ–Ω–∏–µ –ø—Ä–µ–¥–º–µ—Ç–æ–≤
+		bool match = true;
+		for (unsigned int r = 0; r < tempRequired.size(); r++)
+		{
+			bool found = false;
+			for (unsigned int t = 0; t < tempItems.size(); t++)
+			{
+				if (tempRequired[r] == tempItems[t])
+				{
+					found = true;
+					tempItems.erase(tempItems.begin() + t);
+					break;
+				}
+			}
+			if (!found)
+			{
+				match = false;
+				break;
+			}
+		}
+
+		if (match && tempItems.empty())
+		{
+			return recipe->resultItem;
+		}
+	}
+	return "";
+}
+
+void MagixWorld::addCraftingStation(SceneNode* stationNode)
+{
+	craftingStations.push_back(stationNode);
+}
+
+bool MagixWorld::isPlayerNearCraftingStation(const Vector3& playerPos)
+{
+	for (unsigned int i = 0; i < craftingStations.size(); i++)
+	{
+		SceneNode* station = craftingStations[i];
+		float distance = playerPos.distance(station->getPosition());
+		if (distance < 200)  // –î–∏—Å—Ç–∞–Ω—Ü–∏—è –≤–∑–∞–∏–º–æ–¥–µ–π—Å—Ç–≤–∏—è
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+SceneNode* MagixWorld::getNearestCraftingStation(const Vector3& playerPos)
+{
+	SceneNode* nearest = 0;
+	float minDistance = 100000;
+
+	for (unsigned int i = 0; i < craftingStations.size(); i++)
+	{
+		SceneNode* station = craftingStations[i];
+		float distance = playerPos.distance(station->getPosition());
+		if (distance < minDistance && distance < 200)
+		{
+			minDistance = distance;
+			nearest = station;
+		}
+	}
+	return nearest;
+}
+// === –ö–û–ù–ï–¶ –ö–†–ê–§–¢ –°–ò–°–¢–ï–ú–´ === //= ///

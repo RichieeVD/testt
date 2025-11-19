@@ -5045,3 +5045,85 @@ void MagixGUI::pickUpNearestItem()
 		mChatManager->message("Running to pick up " + mDef->getItemName(nearestItem->getMesh()));
 	}
 }
+
+// === КРАФТ СИСТЕМА === //
+void MagixGUI::initializeCraftGUI()
+{
+	// Создаем overlay для крафта
+	craftOverlay = OverlayManager::getSingleton().create("CraftOverlay");
+
+	// Создаем панель для крафта
+	craftPanel = static_cast<OverlayContainer*>(OverlayManager::getSingleton().createOverlayElement("Panel", "CraftPanel"));
+	craftPanel->setMetricsMode(GMM_PIXELS);
+	craftPanel->setPosition(300, 200);
+	craftPanel->setDimensions(400, 300);
+	craftPanel->setMaterialName("General/Panel");
+
+	// Создаем текст для крафта
+	craftText = static_cast<TextAreaOverlayElement*>(OverlayManager::getSingleton().createOverlayElement("TextArea", "CraftText"));
+	craftText->setMetricsMode(GMM_PIXELS);
+	craftText->setPosition(10, 10);
+	craftText->setDimensions(380, 280);
+	craftText->setCharHeight(16);
+	craftText->setFontName("BlueHighway");
+	craftText->setColour(ColourValue::White);
+
+	// Добавляем элементы в overlay
+	craftPanel->addChild(craftText);
+	craftOverlay->add2D(craftPanel);
+
+	isCraftGUIVisible = false;
+	craftOverlay->hide();
+}
+
+void MagixGUI::showCraftGUI()
+{
+	isCraftGUIVisible = true;
+	craftOverlay->show();
+	updateCraftText();
+}
+
+void MagixGUI::hideCraftGUI()
+{
+	isCraftGUIVisible = false;
+	craftOverlay->hide();
+}
+
+void MagixGUI::updateCraftText()
+{
+	String text = "Котел крафта:\n\n";
+
+	// Показываем предметы в котле
+	if (craftItems.empty())
+	{
+		text += "Котел пуст\n";
+	}
+	else
+	{
+		text += "Предметы в котле:\n";
+		for (unsigned int i = 0; i < craftItems.size(); i++)
+		{
+			text += "- " + craftItems[i] + "\n";
+		}
+		text += "\n";
+	}
+
+	// Показываем возможные рецепты
+	text += "Доступные рецепты:\n";
+	text += "3 x Rose = Christmas Hat\n";
+
+	craftText->setCaption(text);
+}
+
+void MagixGUI::addItemToCraft(const String& itemName)
+{
+	craftItems.push_back(itemName);
+	updateCraftText();
+}
+
+void MagixGUI::clearCraftItems()
+{
+	craftItems.clear();
+	updateCraftText();
+}
+// === КОНЕЦ КРАФТ СИСТЕМЫ === //

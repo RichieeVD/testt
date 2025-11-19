@@ -33,6 +33,7 @@ protected:
 	Real stopChaseLimit;
 	Real soundTimer;
 	bool isDrawPoint;
+	bool isCraftingStation;
 public:
 	MagixCritter(SceneNode *node, const unsigned short &id, const String &typeName, Entity *ent)
 	{
@@ -62,6 +63,7 @@ public:
 		stopChaseLimit = 0;
 		soundTimer = 0;
 		isDrawPoint = false;
+		isCraftingStation = false;
 
 		setAnimation("Idle", 0.2, true);
 	}
@@ -173,4 +175,9 @@ public:
 	void setIsDrawPoint(bool flag);
 
 	bool getIsDrawPoint();
+
+	void setIsCraftingStation(bool flag);
+
+	bool getIsCraftingStation();
+
 };

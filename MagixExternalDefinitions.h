@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "MagixNetworkDefines.h"
 #include "GameConfig.h"
@@ -118,6 +118,7 @@ struct Critter
 	bool friendly;
 	bool invulnerable;
 	bool isDrawPoint;
+	bool isCraftingStation;  
 	bool isUncustomizable;
 	vector<const std::pair<String,Real>>::type dropList;
 	std::pair<String,unsigned char> skillDrop;
@@ -137,6 +138,7 @@ struct Critter
 		friendly = false;
 		invulnerable = false;
 		isDrawPoint = false;
+		isCraftingStation = false;
 		isUncustomizable = false;
 		dropList.clear();
 		skillDrop = std::pair<String,unsigned char>("",0);
@@ -156,12 +158,14 @@ struct WorldCritter
 	Real spawnRate;
 	bool hasRoamArea;
 	unsigned short roamAreaID;
-	WorldCritter(const String &t="", const Real &sR=0, bool hRA=false, const unsigned short &rAID=0)
+	bool isCraftingStation;  // ← ДОБАВЬ ЭТУ СТРОКУ
+	WorldCritter(const String &t = "", const Real &sR = 0, bool hRA = false, const unsigned short &rAID = 0)
 	{
 		type = t;
 		spawnRate = sR;
 		hasRoamArea = hRA;
 		roamAreaID = rAID;
+		isCraftingStation = false;  // ← ДОБАВЬ ИНИЦИАЛИЗАЦИЮ
 	}
 };
 

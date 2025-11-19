@@ -11,6 +11,7 @@
 #include "MagixExternalDefinitions.h"
 #include "MagixGameStateManager.h"
 #include "MagixCamera.h"
+#include <vector>  // Перенесено в начало для всего файла
 
 using namespace Forests;
 
@@ -66,9 +67,23 @@ protected:
 	unsigned short critterSpawnLimit;
 	void initReflectionViewport();
 	void removeReflectionViewport();
-	void updateReflectionCamera();  // ДОБАВЬТЕ ЭТУ СТРОКУ
+	void updateReflectionCamera();
 	void updateUnderWater();
 	void updateCameraReflector();
+
+	// === КРАФТ СИСТЕМА === //
+	struct CraftRecipe
+	{
+		String resultItem;  // Что получаем (hat1.mesh)
+		std::vector<String> requiredItems;  // Что нужно (rose.mesh, rose.mesh, rose.mesh)
+	};
+	std::vector<CraftRecipe*> craftRecipes;
+	std::vector<SceneNode*> craftingStations;  // Список станций крафта
+
+	void initializeCraftRecipes();  // Инициализация рецептов
+	bool checkCraftRecipe(const std::vector<String>& items);  // Проверка рецепта
+	String getCraftResult(const std::vector<String>& items);  // Получить результат крафта
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 
 public:
 	bool isArena;
@@ -110,7 +125,10 @@ public:
 	const WorldCritter getCritterSpawnList(const unsigned short &iID);
 	const std::pair<Vector3, Vector3> getCritterRoamArea(const unsigned short &iID);
 	void clearCritterSpawnList();
-	void addCraftingStation(const Vector3 &position);
-	void destroyAllCraftingStations();
 
+	// === КРАФТ СИСТЕМА === //
+	bool isPlayerNearCraftingStation(const Vector3& playerPos);
+	SceneNode* getNearestCraftingStation(const Vector3& playerPos);
+	void addCraftingStation(SceneNode* stationNode);
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 };
