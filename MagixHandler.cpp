@@ -57,7 +57,7 @@ void MagixHandler::initialize(SceneManager *sceneMgr, RenderWindow *window)
 	mSkyManager->initialize(sceneMgr, mDef, mCamera, mSoundManager);
 	mItemManager->initialize(sceneMgr, mDef, mEffectsManager);
 
-	mWorld->initialize(sceneMgr, window, mDef, mGameStateManager, mSoundManager, mCollisionManager, mSkyManager, mCamera);
+	mWorld->initialize(sceneMgr, window, mDef, mGameStateManager, mSoundManager, mCollisionManager, mSkyManager, mCamera, mCritterManager);
 
 	mCritterManager->initialize(sceneMgr, mDef, mGameStateManager, mEffectsManager, mCollisionManager, mSoundManager, mWorld, mCamera);
 	mUnitManager->initialize(sceneMgr, mDef, mGameStateManager, mWorld, mEffectsManager, mCollisionManager, mSoundManager, mItemManager, mCritterManager, mCamera);

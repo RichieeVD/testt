@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "GameConfig.h"
 #include "PagedGeometry.h"
@@ -11,7 +11,7 @@
 #include "MagixExternalDefinitions.h"
 #include "MagixGameStateManager.h"
 #include "MagixCamera.h"
-#include <vector>  // Перенесено в начало для всего файла
+#include <vector>
 
 using namespace Forests;
 
@@ -21,6 +21,8 @@ using namespace Forests;
 #define WATER_UNDERWATERMAT "Terrain/Underwater" 
 #define WATER_DEFAULT_SIZE 500.0f
 
+// Forward declaration, С‡С‚РѕР±С‹ СѓР±СЂР°С‚СЊ С†РёРєР»РёС‡РµСЃРєРёРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
+class MagixCritterManager;
 
 class MagixWorld
 {
@@ -65,25 +67,28 @@ protected:
 	vector<const WorldCritter>::type critterSpawnList;
 	vector<const std::pair<Vector3, Vector3>>::type critterRoamAreaList;
 	unsigned short critterSpawnLimit;
+
+	MagixCritterManager* mCritterManager; // С‚РѕР»СЊРєРѕ СѓРєР°Р·Р°С‚РµР»СЊ, forward declaration СЂР°Р±РѕС‚Р°РµС‚
+
 	void initReflectionViewport();
 	void removeReflectionViewport();
 	void updateReflectionCamera();
 	void updateUnderWater();
 	void updateCameraReflector();
 
-	// === КРАФТ СИСТЕМА === //
+	// === РљР РђР¤Рў РЎРРЎРўР•РњРђ === //
 	struct CraftRecipe
 	{
-		String resultItem;  // Что получаем (hat1.mesh)
-		std::vector<String> requiredItems;  // Что нужно (rose.mesh, rose.mesh, rose.mesh)
+		String resultItem;
+		std::vector<String> requiredItems;
 	};
 	std::vector<CraftRecipe*> craftRecipes;
-	std::vector<SceneNode*> craftingStations;  // Список станций крафта
+	std::vector<SceneNode*> craftingStations;
 
-	void initializeCraftRecipes();  // Инициализация рецептов
-	bool checkCraftRecipe(const std::vector<String>& items);  // Проверка рецепта
-	String getCraftResult(const std::vector<String>& items);  // Получить результат крафта
-	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+	void initializeCraftRecipes();
+	bool checkCraftRecipe(const std::vector<String>& items);
+	String getCraftResult(const std::vector<String>& items);
+	// === РљРћРќР•Р¦ РљР РђР¤Рў РЎРРЎРўР•РњР« === //
 
 public:
 	bool isArena;
@@ -92,7 +97,8 @@ public:
 	void initialize(SceneManager *sceneMgr, RenderWindow *window, MagixExternalDefinitions *def,
 		MagixGameStateManager *gameStateMgr, MagixSoundManager *soundMgr,
 		MagixCollisionManager *collisionMgr, MagixSkyManager *skyMgr,
-		MagixCamera *mainCam);
+		MagixCamera *mainCam, MagixCritterManager* critterMgr);
+
 	void initializeCustomMeshes();
 	void reset();
 	void update();
@@ -126,9 +132,9 @@ public:
 	const std::pair<Vector3, Vector3> getCritterRoamArea(const unsigned short &iID);
 	void clearCritterSpawnList();
 
-	// === КРАФТ СИСТЕМА === //
+	// === РљР РђР¤Рў РЎРРЎРўР•РњРђ === //
 	bool isPlayerNearCraftingStation(const Vector3& playerPos);
 	SceneNode* getNearestCraftingStation(const Vector3& playerPos);
 	void addCraftingStation(SceneNode* stationNode);
-	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+	// === РљРћРќР•Р¦ РљР РђР¤Рў РЎРРЎРўР•РњР« === //
 };

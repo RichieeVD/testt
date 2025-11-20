@@ -319,7 +319,8 @@ protected:
 	OverlayContainer* craftPanel;
 	TextAreaOverlayElement* craftText;
 	bool isCraftGUIVisible;
-	std::vector<String> craftItems;  // Предметы в котле для крафта
+	std::vector<String> craftItems;
+	MagixCritter* mSelectedCritter; // выбранный Critter для Craft GUI
 	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 
 public:
@@ -501,11 +502,12 @@ public:
 	void party(MagixUnit *unit);
 
 	// === КРАФТ СИСТЕМА === //
-	void initializeCraftGUI();  // Инициализация GUI крафта
-	void showCraftGUI();        // Показать GUI крафта
-	void hideCraftGUI();        // Скрыть GUI крафта
-	void updateCraftText();     // Обновить текст крафта
-	void addItemToCraft(const String& itemName);  // Добавить предмет в котел
-	void clearCraftItems();     // Очистить котел
+	void initializeCraftGUI();                        // Инициализация GUI крафта
+	void showCraftGUI(MagixCritter* station = nullptr); // Показать GUI крафта
+	void hideCraftGUI();                              // Скрыть GUI крафта
+	void updateCraftText();                            // Обновить текст крафта
+	void addItemToCraft(const String& itemName);       // Добавить предмет в котел
+	void clearCraftItems();                             // Очистить котел
+	void onSelectCritter(MagixCritter* critter);       // Выбор Critter, чтобы показать кнопки
 	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 };

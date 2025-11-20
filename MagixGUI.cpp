@@ -5129,7 +5129,7 @@ void MagixGUI::initializeCraftGUI()
 	craftOverlay->hide();
 }
 
-void MagixGUI::showCraftGUI()
+void MagixGUI::showCraftGUI(MagixCritter* station)
 {
 	// Показываем overlay крафта
 	OverlayManager::getSingleton().getByName("GUIOverlay/CraftOverlay")->show();
@@ -5139,7 +5139,13 @@ void MagixGUI::showCraftGUI()
 
 	// Скрываем другие GUI элементы если нужно
 	showSelectPanel(false);
+
+	// Можно использовать station если нужно
+	if (station) {
+		mSelectedCritter = station;
+	}
 }
+
 
 
 void MagixGUI::hideCraftGUI()

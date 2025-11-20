@@ -68,10 +68,10 @@ MagixWorld::~MagixWorld()
 	if (mRayQuery) delete mRayQuery;
 }
 
-void MagixWorld::initialize(SceneManager *sceneMgr, RenderWindow *window, MagixExternalDefinitions *def,
-	MagixGameStateManager *gameStateMgr, MagixSoundManager *soundMgr,
-	MagixCollisionManager *collisionMgr, MagixSkyManager *skyMgr,
-	MagixCamera *mainCam)
+void MagixWorld::initialize(SceneManager* sceneMgr, RenderWindow* window, MagixExternalDefinitions* def,
+	MagixGameStateManager* gameStateMgr, MagixSoundManager* soundMgr,
+	MagixCollisionManager* collisionMgr, MagixSkyManager* skyMgr,
+	MagixCamera* mainCam, MagixCritterManager* critterMgr)
 {
 	mSceneMgr = sceneMgr;
 	mWindow = window;
@@ -81,6 +81,7 @@ void MagixWorld::initialize(SceneManager *sceneMgr, RenderWindow *window, MagixE
 	mCollisionManager = collisionMgr;
 	mSkyManager = skyMgr;
 	mMainCamera = mainCam;
+	mCritterManager = critterMgr; 
 
 	// СОЗДАЕМ ОТДЕЛЬНУЮ КАМЕРУ ДЛЯ ОТРАЖЕНИЙ
 	if (!mSceneMgr->hasCamera("ReflectCamera"))
@@ -435,7 +436,7 @@ void MagixWorld::loadWorld(const String &name)
 	critterRoamAreaList.clear();
 	critterSpawnLimit = 0;
 
-	if (mGameStateManager->getGameState()>GAMESTATE_CHARSCREEN&&!mSoundManager->getRandomPlaylist())
+	if (mGameStateManager->getGameState() > GAMESTATE_CHARSCREEN&&!mSoundManager->getRandomPlaylist())
 	{
 		mSoundManager->stopMusic();
 		mSoundManager->setRandomPlaylist(true);
@@ -445,13 +446,13 @@ void MagixWorld::loadWorld(const String &name)
 	MovableObject::setDefaultQueryFlags(WORLDOBJECT_MASK);
 	const String tBuffer = mDef->loadWorldObjects("media/terrains/" + worldName + "/" + worldName + ".world") +
 		mDef->loadWorldObjects("media/terrains/" + worldName + "/CustomPortals.txt");
-	if (tBuffer.length()>0)
+	if (tBuffer.length() > 0)
 	{
 		const vector<String>::type tPart = StringUtil::split(tBuffer, "[#");
-		for (int i = 0; i<int(tPart.size()); i++)
+		for (int i = 0; i < int(tPart.size()); i++)
 		{
 			const vector<String>::type tLine = StringUtil::split(tPart[i], "\n");
-			if (tLine.size()>0)
+			if (tLine.size() > 0)
 			{
 				if (StringUtil::startsWith(tLine[0], "Portal", false) && tLine.size() == 4)
 				{
@@ -485,9 +486,9 @@ void MagixWorld::loadWorld(const String &name)
 					String tMat = "Terrain/CalmWater";
 					String tSound = "";
 					bool tIsSolid = false;
-					if (tLine.size()>4)tMat = tLine[4];
-					if (tLine.size()>5)tSound = tLine[5];
-					if (tLine.size()>6)tIsSolid = StringConverter::parseBool(tLine[6]);
+					if (tLine.size() > 4)tMat = tLine[4];
+					if (tLine.size() > 5)tSound = tLine[5];
+					if (tLine.size() > 6)tIsSolid = StringConverter::parseBool(tLine[6]);
 					addWaterPlane(tPosition, tScaleX, tScaleZ, tMat, tSound);
 					mCollisionManager->createWaterBox(tPosition, tScaleX * 500, tScaleZ * 500, tIsSolid);
 				}
@@ -497,9 +498,9 @@ void MagixWorld::loadWorld(const String &name)
 					const Vector3 tScale = StringConverter::parseVector3(tLine[3]);
 					const Vector3 tRotation = StringConverter::parseVector3(tLine[4]);
 					String tSound = "";
-					if (tLine.size()>5)tSound = tLine[5];
+					if (tLine.size() > 5)tSound = tLine[5];
 					String tMatName = "";
-					if (tLine.size()>6)tMatName = tLine[6];
+					if (tLine.size() > 6)tMatName = tLine[6];
 
 					// СОЗДАЕМ ОБЪЕКТ
 					addObject(tLine[1], tPosition, tScale, tRotation.x, tRotation.y, tRotation.z, tSound, tMatName);
@@ -519,7 +520,7 @@ void MagixWorld::loadWorld(const String &name)
 				{
 					const Vector3 tPosition = StringConverter::parseVector3(tLine[2]);
 					String tSound = "";
-					if (tLine.size()>3)tSound = tLine[3];
+					if (tLine.size() > 3)tSound = tLine[3];
 					addParticle(tLine[1], tPosition, tSound);
 				}
 				else if (StringUtil::startsWith(tLine[0], "WeatherCycle", false) && tLine.size() == 2)
@@ -529,7 +530,7 @@ void MagixWorld::loadWorld(const String &name)
 				else if (StringUtil::startsWith(tLine[0], "Interior", false) && tLine.size() >= 3)
 				{
 					isInterior = true;
-					if (tLine.size()>3)mSkyManager->setInteriorSky(true, StringConverter::parseColourValue(tLine[3]));
+					if (tLine.size() > 3)mSkyManager->setInteriorSky(true, StringConverter::parseColourValue(tLine[3]));
 					else mSkyManager->setInteriorSky(true);
 					ceilingHeight = StringConverter::parseReal(tLine[1]);
 					mCeiling->setMaterialName(tLine[2]);
@@ -580,7 +581,7 @@ void MagixWorld::loadWorld(const String &name)
 					tTree2 = tLine[2];
 					tTree3 = tLine[3];
 					tTreeCount = StringConverter::parseInt(tLine[4]);
-					if (tTreeCount>500 && !mDef->pagedGeometryOn)
+					if (tTreeCount > 500 && !mDef->pagedGeometryOn)
 					{
 						mDef->pagedGeometryOn = true;
 						mDef->pagedGeometryForced = true;
@@ -591,7 +592,7 @@ void MagixWorld::loadWorld(const String &name)
 					tBush1 = tLine[1];
 					tBush2 = tLine[2];
 					tBush3 = tLine[3];
-					if (worldSize.x>10000 && !mDef->pagedGeometryOn)
+					if (worldSize.x > 10000 && !mDef->pagedGeometryOn)
 					{
 						mDef->pagedGeometryOn = true;
 						mDef->pagedGeometryForced = true;
@@ -599,27 +600,27 @@ void MagixWorld::loadWorld(const String &name)
 				}
 				else if (StringUtil::startsWith(tLine[0], "Trees", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tTreesFilename.push_back(std::pair<String, bool>(tLine[j], false));
+					for (int j = 1; j < (int)tLine.size(); j++)tTreesFilename.push_back(std::pair<String, bool>(tLine[j], false));
 				}
 				else if (StringUtil::startsWith(tLine[0], "Bushes", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tBushesFilename.push_back(std::pair<String, bool>(tLine[j], false));
+					for (int j = 1; j < (int)tLine.size(); j++)tBushesFilename.push_back(std::pair<String, bool>(tLine[j], false));
 				}
 				else if (StringUtil::startsWith(tLine[0], "FloatingBushes", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tFloatingBushesFilename.push_back(std::pair<String, bool>(tLine[j], false));
+					for (int j = 1; j < (int)tLine.size(); j++)tFloatingBushesFilename.push_back(std::pair<String, bool>(tLine[j], false));
 				}
 				else if (StringUtil::startsWith(tLine[0], "NewTrees", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tTreesFilename.push_back(std::pair<String, bool>(tLine[j], true));
+					for (int j = 1; j < (int)tLine.size(); j++)tTreesFilename.push_back(std::pair<String, bool>(tLine[j], true));
 				}
 				else if (StringUtil::startsWith(tLine[0], "NewBushes", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tBushesFilename.push_back(std::pair<String, bool>(tLine[j], true));
+					for (int j = 1; j < (int)tLine.size(); j++)tBushesFilename.push_back(std::pair<String, bool>(tLine[j], true));
 				}
 				else if (StringUtil::startsWith(tLine[0], "NewFloatingBushes", false) && tLine.size() >= 2)
 				{
-					for (int j = 1; j<(int)tLine.size(); j++)tFloatingBushesFilename.push_back(std::pair<String, bool>(tLine[j], true));
+					for (int j = 1; j < (int)tLine.size(); j++)tFloatingBushesFilename.push_back(std::pair<String, bool>(tLine[j], true));
 				}
 				else if (StringUtil::startsWith(tLine[0], "CollBox", false) && tLine.size() == 3)
 				{
@@ -655,41 +656,63 @@ void MagixWorld::loadWorld(const String &name)
 			}
 		}
 	}
-	//Load critter spawn list
+	// Load critter spawn list
 	if (!mDef->loadCritterSpawnList(worldName, critterSpawnLimit, critterSpawnList, critterRoamAreaList, tCritterSpawnFilename))
 	{
 		// Non-crittered map Draw Points
 		critterSpawnList.clear();
-		const Real tSize = (Real)((worldSize.x + worldSize.y)*0.5);
+		const Real tSize = (Real)((worldSize.x + worldSize.y) * 0.5);
 
 		// Draw Point остается как был
-		critterSpawnList.push_back(WorldCritter("Draw Point", (Real)(0.0001*tSize*0.0001)));
+		critterSpawnList.push_back(WorldCritter("Draw Point", (Real)(0.0001 * tSize * 0.0001)));
 
 		// === КРАФТ СИСТЕМА === //
-		// Создаем Crafting Station через CritterManager, чтобы UI работал
-		Critter craftStation;
-		craftStation.type = "Crafting Station";
-		craftStation.mesh = "Egg";
-		craftStation.hp = 1;
-		craftStation.maxSpeed = 0;
-		craftStation.isUncustomizable = true;
-		craftStation.isCraftingStation = true;
-		craftStation.invulnerable = true;
-		craftStation.friendly = true;
-		craftStation.scale = 2.0f; // увеличенный масштаб
+		static unsigned short nextCritterID = 1000; // счётчик Critter ID
 
-		// Спавним Critter через CritterManager
-		Vector3 craftPosition(0, 0, 0); // тут можно указать нужные координаты на карте
-		MagixCritter* tC = mCritterManager->createCritter(nextCritterID++, craftStation, craftPosition, 0);
+		// Проверяем, что менеджер Critter’ов существует
+		if (!mCritterManager)
+			return; // безопасно, если CritterManager ещё не создан
 
-		// Добавляем Critter в World (если у тебя есть функция addCritter / addCraftingStation)
-		if (mWorld) mWorld->addCraftingStation(tC->getObjectNode());
+		// Crafting Station 1
+		Critter craftStation1;
+		craftStation1.type = "Crafting Station";
+		craftStation1.mesh = "Egg";
+		craftStation1.hp = 1;
+		craftStation1.maxSpeed = 0;
+		craftStation1.isUncustomizable = true;
+		craftStation1.isCraftingStation = true;
+		craftStation1.invulnerable = true;
+		craftStation1.friendly = true;
+		craftStation1.scale = 2.0f;
+
+		MagixCritter* tC1 = mCritterManager->createCritter(nextCritterID++, craftStation1, Vector3::ZERO, (short)0);
+		addCraftingStation(tC1->getObjectNode());
+
+		// Crafting Station 2
+		Critter craftStation2;
+		craftStation2.type = "Crafting Station";
+		craftStation2.mesh = "Egg";
+		craftStation2.hp = 1;
+		craftStation2.maxSpeed = 0;
+		craftStation2.isUncustomizable = true;
+		craftStation2.isCraftingStation = true;
+		craftStation2.invulnerable = true;
+		craftStation2.friendly = true;
+		craftStation2.scale = 2.0f;
+
+		MagixCritter* tC2 = mCritterManager->createCritter(nextCritterID++, craftStation2, Vector3::ZERO, (short)0);
+		addCraftingStation(tC2->getObjectNode());
 		// === КОНЕЦ КРАФТ СИСТЕМЫ === //
 
-
-		if (tSize <= 5000)critterSpawnLimit = 2;  // Увеличиваем лимит до 2
-		else if (tSize <= 8000)critterSpawnLimit = 3;  // Увеличиваем лимит до 3
+		// При необходимости увеличиваем лимит Critter’ов
+		if (tSize <= 5000) critterSpawnLimit = 2;
+		else if (tSize <= 8000) critterSpawnLimit = 3;
 	}
+
+
+
+
+
 
 	//if(!mDef->hasVertexProgram)return;
 

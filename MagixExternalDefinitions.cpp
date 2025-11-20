@@ -1575,6 +1575,11 @@ void MagixExternalDefinitions::loadCritters(const String &filename, bool isCusto
 			{
 				if (!isCustom)tC.isDrawPoint = StringConverter::parseBool(i->second);
 			}
+			else if (StringUtil::startsWith(i->first, "iscraftingstation"))
+			{
+				if (!isCustom)tC.isCraftingStation = StringConverter::parseBool(i->second);
+			}
+
 			else if (StringUtil::startsWith(i->first, "material"))tC.material = i->second;
 			else if (StringUtil::startsWith(i->first, "sound"))tC.sound = i->second;
 			else if (StringUtil::startsWith(i->first, "friendly"))tC.friendly = StringConverter::parseBool(i->second);
@@ -1586,6 +1591,7 @@ void MagixExternalDefinitions::loadCritters(const String &filename, bool isCusto
 			else if (StringUtil::startsWith(i->first, "decisiondeviation"))tC.decisionDeviation = (unsigned char)StringConverter::parseReal(i->second);
 			else if (StringUtil::startsWith(i->first, "maxspeed"))tC.maxSpeed = StringConverter::parseReal(i->second);
 			else if (StringUtil::startsWith(i->first, "droplist"))
+
 			{
 				const vector<String>::type tPart = StringUtil::split(i->second, ",", 1);
 				if (tPart.size() >= 2)tC.dropList.push_back(std::pair<String, Real>(tPart[0], StringConverter::parseReal(tPart[1])));
