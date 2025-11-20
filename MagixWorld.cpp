@@ -1,6 +1,8 @@
 ﻿#include "MagixWorld.h"
 #include "HeightFunction.h"
 #include "MagixConst.h"
+#include "MagixCritter.h"
+#include "MagixCritterManager.h"
 
 MagixWorld::MagixWorld()
 {
@@ -653,12 +655,10 @@ void MagixWorld::loadWorld(const String &name)
 			}
 		}
 	}
-
-	//Load critter spawn list
 	//Load critter spawn list
 	if (!mDef->loadCritterSpawnList(worldName, critterSpawnLimit, critterSpawnList, critterRoamAreaList, tCritterSpawnFilename))
 	{
-		//Non-crittered map Draw Points
+		// Non-crittered map Draw Points
 		critterSpawnList.clear();
 		const Real tSize = (Real)((worldSize.x + worldSize.y)*0.5);
 
@@ -666,11 +666,26 @@ void MagixWorld::loadWorld(const String &name)
 		critterSpawnList.push_back(WorldCritter("Draw Point", (Real)(0.0001*tSize*0.0001)));
 
 		// === КРАФТ СИСТЕМА === //
-		// ДОБАВЛЯЕМ крафт-станцию как дополнительный криттер
-		WorldCritter craftStation("Crafting Station", (Real)(0.0001*tSize*0.0001));
-		craftStation.isCraftingStation = true;  // ← Установить флаг
-		critterSpawnList.push_back(craftStation);
+		// Создаем Crafting Station через CritterManager, чтобы UI работал
+		Critter craftStation;
+		craftStation.type = "Crafting Station";
+		craftStation.mesh = "Egg";
+		craftStation.hp = 1;
+		craftStation.maxSpeed = 0;
+		craftStation.isUncustomizable = true;
+		craftStation.isCraftingStation = true;
+		craftStation.invulnerable = true;
+		craftStation.friendly = true;
+		craftStation.scale = 2.0f; // увеличенный масштаб
+
+		// Спавним Critter через CritterManager
+		Vector3 craftPosition(0, 0, 0); // тут можно указать нужные координаты на карте
+		MagixCritter* tC = mCritterManager->createCritter(nextCritterID++, craftStation, craftPosition, 0);
+
+		// Добавляем Critter в World (если у тебя есть функция addCritter / addCraftingStation)
+		if (mWorld) mWorld->addCraftingStation(tC->getObjectNode());
 		// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+
 
 		if (tSize <= 5000)critterSpawnLimit = 2;  // Увеличиваем лимит до 2
 		else if (tSize <= 8000)critterSpawnLimit = 3;  // Увеличиваем лимит до 3
