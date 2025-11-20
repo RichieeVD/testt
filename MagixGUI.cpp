@@ -3637,6 +3637,7 @@ void MagixGUI::toggleInputMode(bool isEnter, OverlayElement *inputBox, UTFString
 		}
 	}
 }
+
 bool MagixGUI::selectCurrentObject(SceneNode *object, const unsigned int &flags, bool isRightClick)
 {
 	if (object)
@@ -3666,6 +3667,31 @@ bool MagixGUI::selectCurrentObject(SceneNode *object, const unsigned int &flags,
 			MagixCritter *tCritter = mCritterManager->getByObjectNode(object);
 			if (!tCritter)return false;
 
+			// === КРАФТ СИСТЕМА === //
+			// Проверяем крафт-станцию ПЕРВОЙ!
+			if (tCritter->getIsCraftingStation())
+			{
+				mCurrentObject = object;
+				mUnitManager->getPlayer()->setAutoTrackObject(tCritter);
+
+				if (!isRightClick)
+				{
+					showSelectPanel(true, "Crafting Station");
+					mButtonText[BUTTON_SELECTBOX1]->setCaption("Use");
+					mButtonText[BUTTON_SELECTBOX2]->setCaption("");
+					mButtonText[BUTTON_SELECTBOX3]->setCaption("");
+					mButtonText[BUTTON_SELECTBOX4]->setCaption("");
+				}
+				else
+				{
+					// Правый клик на крафт-станцию - тоже открываем крафт
+					showCraftGUI();
+				}
+				return true; // ВАЖНО: возвращаем true сразу после обработки крафт-станции
+			}
+			// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+
+			// Обычные криттеры (только если это НЕ крафт-станция)
 			mCurrentObject = object;
 			mUnitManager->getPlayer()->setAutoTrackObject(tCritter);
 
@@ -3774,6 +3800,20 @@ void MagixGUI::processSelectBoxClick()
 	if (!tButtonText)return;
 	const String tFunction = tButtonText->getCaption();
 
+	// === КРАФТ СИСТЕМА === //
+	// Обработка кнопки "Use" для крафт-станции (ПЕРВОЙ!)
+	if (tFunction == "Use")
+	{
+		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
+		if (craftCritter && craftCritter->getIsCraftingStation())
+		{
+			showCraftGUI();  // Открываем интерфейс крафта
+			showSelectPanel(false);
+			return;
+		}
+	}
+	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
+
 	if (tFunction == "Add Friend" || tFunction == "Remove Friend")
 	{
 		MagixUnit *tUnit = mUnitManager->getByObjectNode(mCurrentObject);
@@ -3797,27 +3837,6 @@ void MagixGUI::processSelectBoxClick()
 			showTargetBioBox(true);
 			mNetworkManager->sendBioRequest(tTarget->getUser());
 		}
-	}
-	// === КРАФТ СИСТЕМА === //
-	// Обработка кнопки "Use" для крафт-станции
-	if (tFunction == "Use")
-	{
-		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
-		if (craftCritter && craftCritter->getIsCraftingStation())
-		{
-			showCraftGUI();  // Открываем интерфейс крафта
-			showSelectPanel(false);
-			return;
-		}
-	}
-	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
-
-	else if (tFunction == "Praise")
-	{
-		MagixCritter *tCritter = mCritterManager->getByObjectNode(mCurrentObject);
-		if (!tCritter)return;
-		if (!tCritter->setAnimation("Praise"))tCritter->setAnimation("Attack1");
-		if (tCritter->isInvulnerable())mUnitManager->rewardCritter(tCritter);
 	}
 	else if (tFunction == "Praise")
 	{
@@ -3874,8 +3893,6 @@ void MagixGUI::processSelectBoxClick()
 		mUnitManager->getPlayer()->getPetFlags()->evolve = false;
 		mNetworkManager->sendCritterShrink(tCritter->getID(), false);
 	}
-
-
 	else if (tFunction == "Attack")
 	{
 		if (mUnitManager->getPlayer()->getIsWounded())
@@ -3915,21 +3932,6 @@ void MagixGUI::processSelectBoxClick()
 		mUnitManager->getPlayer()->setAutoAttack(0);
 		mUnitManager->getPlayer()->setTarget(tCritter->getPosition(), TARGET_RUNTOPICKUP, true);
 	}
-
-	// === КРАФТ СИСТЕМА === //
-	// Обработка кнопки "Use" для крафт-станции
-	else if (tFunction == "Use")
-	{
-		MagixCritter *craftCritter = mCritterManager->getByObjectNode(mCurrentObject);
-		if (craftCritter && craftCritter->getIsCraftingStation())
-		{
-			showCraftGUI();  // Открываем интерфейс крафта
-			showSelectPanel(false);  // ← ИСПРАВЬ НА showSelectPanel(false)
-			return;
-		}
-	}
-	// === КОНЕЦ КРАФТ СИСТЕМЫ === //
-
 }
 void MagixGUI::showSelectPanel(bool flag, const String &name)
 {
@@ -5129,41 +5131,31 @@ void MagixGUI::initializeCraftGUI()
 
 void MagixGUI::showCraftGUI()
 {
-	isCraftGUIVisible = true;
-	craftOverlay->show();
+	// Показываем overlay крафта
+	OverlayManager::getSingleton().getByName("GUIOverlay/CraftOverlay")->show();
+
+	// Обновляем текст крафта
 	updateCraftText();
+
+	// Скрываем другие GUI элементы если нужно
+	showSelectPanel(false);
 }
+
 
 void MagixGUI::hideCraftGUI()
 {
-	isCraftGUIVisible = false;
-	craftOverlay->hide();
+	OverlayManager::getSingleton().getByName("GUIOverlay/CraftOverlay")->hide();
 }
 
 void MagixGUI::updateCraftText()
 {
-	String text = "Котел крафта:\n\n";
-
-	// Показываем предметы в котле
-	if (craftItems.empty())
+	// Обновляем текст в интерфейсе крафта
+	OverlayElement* craftText = OverlayManager::getSingleton().getOverlayElement("GUI/CraftText");
+	if (craftText)
 	{
-		text += "Котел пуст\n";
+		String text = "Котел крафта:\n\nКотел пуст\n\nДоступные рецепты:\n3 x Rose = Christmas Hat";
+		craftText->setCaption(text);
 	}
-	else
-	{
-		text += "Предметы в котле:\n";
-		for (unsigned int i = 0; i < craftItems.size(); i++)
-		{
-			text += "- " + craftItems[i] + "\n";
-		}
-		text += "\n";
-	}
-
-	// Показываем возможные рецепты
-	text += "Доступные рецепты:\n";
-	text += "3 x Rose = Christmas Hat\n";
-
-	craftText->setCaption(text);
 }
 
 void MagixGUI::addItemToCraft(const String& itemName)
